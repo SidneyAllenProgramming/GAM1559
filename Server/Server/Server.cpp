@@ -156,6 +156,11 @@ bool Server::AcceptConnections(SOCKET listenSocket)
     return 0;
 }
 
+bool Server::Pong()
+{
+    return false;
+}
+
 bool Server::InitializeWindowsSockets()
 {
     WSADATA wsaData;

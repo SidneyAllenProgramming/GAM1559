@@ -22,6 +22,8 @@ public:
 	bool Initialize();
 	bool Connect(const char* message, SOCKET connectingSocket, char** argv);
 
+	bool Ping();
+
 	bool InitializeWindowsSockets();
 
 private:

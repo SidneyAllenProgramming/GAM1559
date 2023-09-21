@@ -58,7 +58,7 @@ bool Client::Connect(const char* message, SOCKET connectingSocket, char** argv)
         WSACleanup();
     }
 
-    // Send an prepared message with null terminator included
+    // send a prepared message with null terminator included
     iResult = send(connectingSocket, message, (int)strlen(message) + 1, 0);
 
     if (iResult == SOCKET_ERROR)
@@ -77,6 +77,46 @@ bool Client::Connect(const char* message, SOCKET connectingSocket, char** argv)
     WSACleanup();
 
     return 0;
+}
+
+bool Client::Ping()
+{
+    int iResult;
+    char* pong = new char[5];
+
+    SOCKET connectingSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    // Loop through and send "Ping" 10 times, after receiving a "Pong".
+    for (int i = 0; i < 10; i++)
+    {
+        // send a "Ping" to the server.
+        iResult = send(connectingSocket, "Ping", (int)strlen("Ping") + 1, 0);
+
+        if (iResult == SOCKET_ERROR)
+        {
+            printf("Error at send(): %d\n", WSAGetLastError());
+
+            closesocket(connectingSocket);
+            WSACleanup();
+            return 1;
+        }
+        
+        // recv a "Pong" from the server.
+        iResult = recv(connectingSocket, pong, sizeof(pong), 0);
+
+        if (iResult == SOCKET_ERROR)
+        {
+            printf("Error at recv(): %d\n", WSAGetLastError());
+
+            closesocket(connectingSocket);
+            WSACleanup();
+            return 1;
+        }
+
+        // print the server message to console.
+        printf(pong);
+        Sleep(500);
+    }
 }
 
 bool Client::InitializeWindowsSockets()

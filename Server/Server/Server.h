@@ -21,6 +21,8 @@ public:
 	bool StartServer(SOCKET listenSocket);
 	bool AcceptConnections(SOCKET listenSocket);
 
+	bool Pong();
+
 	bool InitializeWindowsSockets();
 
 private:

@@ -1,2 +1,3 @@
 ﻿  Client.cpp
+C:\Users\alle0328\Downloads\GAM1559\Server\Client\Client.cpp(103): warning C4715: 'Client::Ping': not all control paths return a value
   Client.vcxproj -> C:\Users\alle0328\Downloads\GAM1559\Server\x64\Debug\Client.exe
