@@ -20,7 +20,7 @@ public:
 	~Client();
 
 	bool Initialize();
-	bool Connect(const char* message, SOCKET connectingSocket);
+	bool Connect(const char* message, SOCKET connectingSocket, char** argv);
 
 	bool InitializeWindowsSockets();
 
