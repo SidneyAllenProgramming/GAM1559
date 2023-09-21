@@ -11,12 +11,10 @@ int main()
 
 Server::Server()
 {
-
 }
 
 Server::~Server()
 {
-
 }
 
 bool Server::Initialize()
@@ -25,6 +23,8 @@ bool Server::Initialize()
     {
         return 1;
     }
+
+    return 0;
 }
 
 bool Server::StartServer(SOCKET listenSocket)
@@ -45,7 +45,7 @@ bool Server::StartServer(SOCKET listenSocket)
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
     if (iResult != 0)
     {
-        printf("getaddrinfo failed: %d\n", iResult);
+        printf("getaddrinfo failed with error: %d\n", iResult);
 
         WSACleanup();
         return 1;
@@ -88,6 +88,8 @@ bool Server::StartServer(SOCKET listenSocket)
     printf("Server initialized, waiting for clients.\n");
 
     AcceptConnections(listenSocket);
+
+    return 0;
 }
 
 bool Server::AcceptConnections(SOCKET listenSocket)
@@ -103,7 +105,7 @@ bool Server::AcceptConnections(SOCKET listenSocket)
         acceptedSocket = accept(listenSocket, NULL, NULL);
         if (acceptedSocket == INVALID_SOCKET) 
         {
-            printf("accept failed: %d\n", WSAGetLastError());
+            printf("accept failed with error: %d\n", WSAGetLastError());
 
             closesocket(listenSocket);
             WSACleanup();

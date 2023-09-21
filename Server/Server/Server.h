@@ -24,5 +24,5 @@ public:
 	bool InitializeWindowsSockets();
 
 private:
-	int m_iResult;
+
 };

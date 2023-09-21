@@ -24,6 +24,8 @@ bool Client::Initialize()
     {
         return 1;
     }
+
+    return 0;
 }
 
 bool Client::Connect(const char* message, SOCKET connectingSocket, char** argv)

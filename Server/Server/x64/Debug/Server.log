@@ -1,4 +1,2 @@
 ﻿  Server.cpp
-C:\Users\alle0328\Downloads\GAM1559\Server\Server\Server.cpp(28): warning C4715: 'Server::Initialize': not all control paths return a value
-C:\Users\alle0328\Downloads\GAM1559\Server\Server\Server.cpp(91): warning C4715: 'Server::StartServer': not all control paths return a value
   Server.vcxproj -> C:\Users\alle0328\Downloads\GAM1559\Server\x64\Debug\Server.exe
