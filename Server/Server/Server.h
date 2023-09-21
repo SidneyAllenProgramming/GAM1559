@@ -19,9 +19,10 @@ public:
 
 	bool Initialize();
 	bool StartServer(SOCKET listenSocket);
-	bool AcceptConnections(SOCKET listenSocket, SOCKET acceptedSocket);
+	bool AcceptConnections(SOCKET listenSocket);
 
 	bool InitializeWindowsSockets();
 
 private:
+	int m_iResult;
 };
