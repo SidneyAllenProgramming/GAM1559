@@ -30,7 +30,6 @@ bool Client::Initialize()
 
 bool Client::Connect(const char* message, SOCKET connectingSocket, char** argv)
 {
-    int iResult;
 
     // Create a connecting socket to connect to the server.
     connectingSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -58,33 +57,41 @@ bool Client::Connect(const char* message, SOCKET connectingSocket, char** argv)
         WSACleanup();
     }
 
-    // send a prepared message with null terminator included
-    iResult = send(connectingSocket, message, (int)strlen(message) + 1, 0);
+    Ping(connectingSocket);
+}
 
+bool Client::Shutdown(int iResult, SOCKET connectingSocket)
+{
+    // Delete socket
+    iResult = closesocket(connectingSocket);
+    printf("remote client socket has closed");
     if (iResult == SOCKET_ERROR)
     {
-        printf("Error at send(): %d\n", WSAGetLastError());
-        
+        printf("Unable to close socket.\n");
+
         closesocket(connectingSocket);
         WSACleanup();
         return 1;
     }
 
-    printf("Bytes Sent: %ld\n", iResult);
+    // CleanUp Winsock
+    iResult = WSACleanup();
+    printf("remote client winsock has closed");
+    if (iResult == SOCKET_ERROR)
+    {
+        printf("Unable to cleanup Winsock.\n");
 
-    // cleanup
-    closesocket(connectingSocket);
-    WSACleanup();
-
-    return 0;
+        closesocket(connectingSocket);
+        WSACleanup();
+        return 1;
+    }
 }
 
-bool Client::Ping()
+bool Client::Ping(SOCKET connectingSocket)
 {
     int iResult;
-    char* pong = new char[5];
 
-    SOCKET connectingSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    char* pong = new char[10];
 
     // Loop through and send "Ping" 10 times, after receiving a "Pong".
     for (int i = 0; i < 10; i++)
@@ -117,6 +124,8 @@ bool Client::Ping()
         printf(pong);
         Sleep(500);
     }
+
+    Shutdown(iResult, connectingSocket);
 }
 
 bool Client::InitializeWindowsSockets()

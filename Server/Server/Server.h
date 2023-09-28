@@ -20,8 +20,9 @@ public:
 	bool Initialize();
 	bool StartServer(SOCKET listenSocket);
 	bool AcceptConnections(SOCKET listenSocket);
+	bool Shutdown(int iResult, SOCKET connectingSocket);
 
-	bool Pong();
+	bool Pong(SOCKET acceptedSocket);
 
 	bool InitializeWindowsSockets();
 

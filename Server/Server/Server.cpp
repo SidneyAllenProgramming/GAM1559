@@ -1,4 +1,5 @@
 #include "Server.h"
+#include <string>
 
 int main()
 {
@@ -94,71 +95,85 @@ bool Server::StartServer(SOCKET listenSocket)
 
 bool Server::AcceptConnections(SOCKET listenSocket)
 {
-    int iResult;
-
-    char recvbuf[DEFAULT_BUFLEN];
+    //char recvbuf[DEFAULT_BUFLEN];
     SOCKET acceptedSocket = INVALID_SOCKET;
 
-    do
+    // Accept a client socket
+    acceptedSocket = accept(listenSocket, NULL, NULL);
+    if (acceptedSocket == INVALID_SOCKET) 
     {
-        // Accept a client socket
-        acceptedSocket = accept(listenSocket, NULL, NULL);
-        if (acceptedSocket == INVALID_SOCKET) 
-        {
-            printf("accept failed with error: %d\n", WSAGetLastError());
+        printf("accept failed with error: %d\n", WSAGetLastError());
 
-            closesocket(listenSocket);
+        closesocket(listenSocket);
+        WSACleanup();
+        return 1;
+    }
+    
+    Pong(acceptedSocket);
+    closesocket(listenSocket);
+    return 0;
+}
+
+bool Server::Pong(SOCKET acceptedSocket)
+{
+    int iResult;
+    char pingStr[10];
+
+    while (true) 
+    {
+        // receive the client's ping message.
+        iResult = recv(acceptedSocket, pingStr, sizeof(pingStr), 0);
+        if (iResult == SOCKET_ERROR)
+        {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+            closesocket(acceptedSocket);
             WSACleanup();
-            return 1;
+            break;
+        }
+        else if (iResult == 0)
+        {
+            break;
         }
 
-        do
+        // Print the client's ping to the console.
+        printf(pingStr);
+        printf("\n");
+
+        std::string pongStr = "Pong\n"; //Testing Api with STL string
+
+        // Send a Pong string to the client.
+        iResult = send(acceptedSocket, pongStr.c_str(), (int)pongStr.length() + 1, 0);
+        if (iResult == SOCKET_ERROR)
         {
-            // Receive data until the client shuts down the connection
-            iResult = recv(acceptedSocket, recvbuf, DEFAULT_BUFLEN, 0);
-            if (iResult > 0)
-            {
-                printf("Message received from client: %s.\n", recvbuf);
-            }
-            else if (iResult == 0)
-            {
-                // connection was closed gracefully
-                printf("Connection with client closed.\n");
-                closesocket(acceptedSocket);
-            }
-            else
-            {
-                // there was an error during recv
-                printf("recv failed with error: %d\n", WSAGetLastError());
-                closesocket(acceptedSocket);
-            }
-        } while (iResult > 0);
+            printf("send failed with error: %d\n", WSAGetLastError());
+            closesocket(acceptedSocket);
+            WSACleanup();
+            break;
+        }
+    }
 
-        // here is where server shutdown logic could be placed
+    Shutdown(iResult, acceptedSocket);
 
-    } while (1);
+    return 0;
+}
 
+bool Server::Shutdown(int iResult, SOCKET connectingSocket)
+{
     // shutdown the connection since we're done
-    iResult = shutdown(acceptedSocket, SD_SEND);
+    iResult = shutdown(connectingSocket, SD_SEND);
     if (iResult == SOCKET_ERROR)
     {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
-        closesocket(acceptedSocket);
+        closesocket(connectingSocket);
         WSACleanup();
         return 1;
     }
 
     // cleanup
-    closesocket(listenSocket);
-    closesocket(acceptedSocket);
+    closesocket(connectingSocket);
     WSACleanup();
 
     return 0;
-}
-
-bool Server::Pong()
-{
-    return false;
 }
 
 bool Server::InitializeWindowsSockets()
