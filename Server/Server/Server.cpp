@@ -18,17 +18,17 @@ Server::~Server()
 {
 }
 
-bool Server::Initialize()
+void Server::Initialize()
 {
     if (InitializeWindowsSockets() == false)
     {
-        return 1;
+        return;
     }
 
-    return 0;
+    return;
 }
 
-bool Server::StartServer(SOCKET listenSocket)
+void Server::StartServer(SOCKET listenSocket)
 {
     int iResult;
 
@@ -49,7 +49,7 @@ bool Server::StartServer(SOCKET listenSocket)
         printf("getaddrinfo failed with error: %d\n", iResult);
 
         WSACleanup();
-        return 1;
+        return;
     }
 
     // Create a socket for server connection.
@@ -61,7 +61,7 @@ bool Server::StartServer(SOCKET listenSocket)
 
         freeaddrinfo(result);
         WSACleanup();
-        return 1;
+        return;
     }
 
     // Setup the TCP listening socket
@@ -73,7 +73,7 @@ bool Server::StartServer(SOCKET listenSocket)
         freeaddrinfo(result);
         closesocket(listenSocket);
         WSACleanup();
-        return 1;
+        return;
     }
 
     // Setup the listening socket to listen mode.
@@ -83,17 +83,17 @@ bool Server::StartServer(SOCKET listenSocket)
 
         closesocket(listenSocket);
         WSACleanup();
-        return 1;
+        return;
     }
     
     printf("Server initialized, waiting for clients.\n");
 
     AcceptConnections(listenSocket);
 
-    return 0;
+    return;
 }
 
-bool Server::AcceptConnections(SOCKET listenSocket)
+void Server::AcceptConnections(SOCKET listenSocket)
 {
     //char recvbuf[DEFAULT_BUFLEN];
     SOCKET acceptedSocket = INVALID_SOCKET;
@@ -106,15 +106,55 @@ bool Server::AcceptConnections(SOCKET listenSocket)
 
         closesocket(listenSocket);
         WSACleanup();
-        return 1;
+        return;
     }
     
-    Pong(acceptedSocket);
+    ReceiveMessage(acceptedSocket);
+
     closesocket(listenSocket);
-    return 0;
+    return;
 }
 
-bool Server::Pong(SOCKET acceptedSocket)
+void Server::ReceiveMessage(SOCKET acceptedSocket)
+{
+    int iResult;
+    char recvbuf[DEFAULT_BUFLEN];
+
+    // Somehow, I need to wait and then receive the client's name here?
+
+    while (true)
+    {
+        // receive the client's name.
+        iResult = recv(acceptedSocket, recvbuf, sizeof(DEFAULT_BUFLEN), 0);
+        if (iResult == SOCKET_ERROR)
+        {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+            closesocket(acceptedSocket);
+            WSACleanup();
+            break;
+        }
+        else if (iResult == 0)
+        {
+            break;
+        }
+
+        // Send a Pong string to the client.
+        //iResult = send(acceptedSocket, pongStr.c_str(), (int)pongStr.length() + 1, 0);
+        //if (iResult == SOCKET_ERROR)
+        //{
+        //    printf("send failed with error: %d\n", WSAGetLastError());
+        //    closesocket(acceptedSocket);
+        //    WSACleanup();
+        //    break;
+        //}
+    }
+
+    Shutdown(iResult, acceptedSocket);
+
+    return;
+}
+
+void Server::Pong(SOCKET acceptedSocket)
 {
     int iResult;
     char pingStr[10];
@@ -154,10 +194,10 @@ bool Server::Pong(SOCKET acceptedSocket)
 
     Shutdown(iResult, acceptedSocket);
 
-    return 0;
+    return;
 }
 
-bool Server::Shutdown(int iResult, SOCKET connectingSocket)
+void Server::Shutdown(int iResult, SOCKET connectingSocket)
 {
     // shutdown the connection since we're done
     iResult = shutdown(connectingSocket, SD_SEND);
@@ -166,14 +206,35 @@ bool Server::Shutdown(int iResult, SOCKET connectingSocket)
         printf("shutdown failed with error: %d\n", WSAGetLastError());
         closesocket(connectingSocket);
         WSACleanup();
-        return 1;
+        return;
     }
 
     // cleanup
     closesocket(connectingSocket);
     WSACleanup();
 
-    return 0;
+    return;
+}
+
+void Server::SetServerSockAddr(sockaddr_in* sockAddress, int portNumber)
+{
+    sSocketAddress = *sockAddress;
+}
+
+void Server::StartChatRoom()
+{
+}
+
+void Server::AddClientToRoom(Connection& c)
+{
+}
+
+void Server::ReadNessage(Connection& c)
+{
+}
+
+void Server::WriteMEssage()
+{
 }
 
 bool Server::InitializeWindowsSockets()

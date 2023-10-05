@@ -1,0 +1,34 @@
+CONNECTION class has socket, client name and address.
+
+SERVER
+for chat room initiation, create a thread using a lambda.
+while loop does stuff
+after loop detach the lambda thread (daemon).
+
+to add client to room, pass in a Connection reference and create a thread: std::thread t(&Server_Socket::Read_Message, c);
+then detach and insert the connection: connections.insert(std::pair<SOCKET, Connection>(c.ClientSocket, c));
+
+create a disconnect variable to disconnect the client if true.
+
+to read message, same as usual
+
+for (auto i : connections)
+{
+if (i.first != ClientSocket)
+{
+}
+}
+
+CLIENT
+create the socket, connect to server then in a loop set it to sleep permanently.
+
+during connection, initiate the chat room.
+
+Read the message in.
+std::thread thread_for_message_read(&Client::Message::Read, other stuff);
+
+if message size is 0, then error occur, otherwise read out all the information.
+
+for sending, while disconnect is true (while is !disconnect)
+cout You:
+get the line with the ONE_KB message buffer, then error check if the server is down or not.

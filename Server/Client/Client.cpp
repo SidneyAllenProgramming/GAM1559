@@ -1,4 +1,7 @@
 #include "Client.h"
+#include <iostream>
+#include <sstream>
+#include <string>
 
 int __cdecl main(int argc, char** argv)
 {
@@ -30,6 +33,7 @@ bool Client::Initialize()
 
 bool Client::Connect(const char* message, SOCKET connectingSocket, char** argv)
 {
+    int iResult;
 
     // Create a connecting socket to connect to the server.
     connectingSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -57,7 +61,13 @@ bool Client::Connect(const char* message, SOCKET connectingSocket, char** argv)
         WSACleanup();
     }
 
-    Ping(connectingSocket);
+    std::string clientName;
+
+    printf("Input your name, User.\n");
+    std::getline(std::cin, clientName);
+    iResult = send(connectingSocket, clientName.c_str(), (int)strlen(clientName.c_str()) + 1, 0);
+
+
 }
 
 bool Client::Shutdown(int iResult, SOCKET connectingSocket)
