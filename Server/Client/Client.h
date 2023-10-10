@@ -19,14 +19,23 @@ public:
 	Client();
 	~Client();
 
-	bool Initialize();
-	bool Connect(const char* message, SOCKET connectingSocket, char** argv);
-	bool Shutdown(int iResult, SOCKET connectingSocket);
+	void Initialize();
+	void Connect(const char* message, SOCKET connectingSocket, char** argv);
 
-	bool Ping(SOCKET connectingSocket);
+
+	void Shutdown(int iResult);
+
+	void ServerConnect(const char* serverIP, const int serverPort);
+	void SetClientSockAddr(const char* serverIP, const int serverPort);
+	void StartChatRoom();
+	void Read_Message();
+	void Send_Message();
+
+	void Ping();
 
 	bool InitializeWindowsSockets();
 
 private:
-
+	SOCKET cSocket;
+	sockaddr_in cSocketAddress;
 };

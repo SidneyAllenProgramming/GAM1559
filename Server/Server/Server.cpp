@@ -3,11 +3,8 @@
 
 int main()
 {
-    SOCKET listenSocket = INVALID_SOCKET;
-    SOCKET acceptedSocket = INVALID_SOCKET;
-
     Server().Initialize();
-    Server().StartServer(listenSocket);
+    Server().StartServer();
 }
 
 Server::Server()
@@ -28,7 +25,7 @@ void Server::Initialize()
     return;
 }
 
-void Server::StartServer(SOCKET listenSocket)
+void Server::StartServer()
 {
     int iResult;
 
@@ -53,9 +50,9 @@ void Server::StartServer(SOCKET listenSocket)
     }
 
     // Create a socket for server connection.
-    listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    sSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
-    if (listenSocket == INVALID_SOCKET)
+    if (sSocket == INVALID_SOCKET)
     {
         printf("socket failed with error: %ld\n", WSAGetLastError());
 
@@ -65,53 +62,53 @@ void Server::StartServer(SOCKET listenSocket)
     }
 
     // Setup the TCP listening socket
-    iResult = bind(listenSocket, result->ai_addr, (int)result->ai_addrlen);
+    iResult = bind(sSocket, result->ai_addr, (int)result->ai_addrlen);
     if (iResult == SOCKET_ERROR)
     {
         printf("bind failed with error: %d\n", WSAGetLastError());
 
         freeaddrinfo(result);
-        closesocket(listenSocket);
+        closesocket(sSocket);
         WSACleanup();
         return;
     }
 
     // Setup the listening socket to listen mode.
-    if (listen(listenSocket, SOMAXCONN) == SOCKET_ERROR)
+    if (listen(sSocket, SOMAXCONN) == SOCKET_ERROR)
     {
         printf("listen failed with error: %ld\n", WSAGetLastError());
 
-        closesocket(listenSocket);
+        closesocket(sSocket);
         WSACleanup();
         return;
     }
     
     printf("Server initialized, waiting for clients.\n");
 
-    AcceptConnections(listenSocket);
+    AcceptConnections();
 
     return;
 }
 
-void Server::AcceptConnections(SOCKET listenSocket)
+void Server::AcceptConnections()
 {
     //char recvbuf[DEFAULT_BUFLEN];
     SOCKET acceptedSocket = INVALID_SOCKET;
 
     // Accept a client socket
-    acceptedSocket = accept(listenSocket, NULL, NULL);
+    acceptedSocket = accept(sSocket, NULL, NULL);
     if (acceptedSocket == INVALID_SOCKET) 
     {
         printf("accept failed with error: %d\n", WSAGetLastError());
 
-        closesocket(listenSocket);
+        closesocket(sSocket);
         WSACleanup();
         return;
     }
     
     ReceiveMessage(acceptedSocket);
 
-    closesocket(listenSocket);
+    closesocket(sSocket);
     return;
 }
 
@@ -138,15 +135,6 @@ void Server::ReceiveMessage(SOCKET acceptedSocket)
             break;
         }
 
-        // Send a Pong string to the client.
-        //iResult = send(acceptedSocket, pongStr.c_str(), (int)pongStr.length() + 1, 0);
-        //if (iResult == SOCKET_ERROR)
-        //{
-        //    printf("send failed with error: %d\n", WSAGetLastError());
-        //    closesocket(acceptedSocket);
-        //    WSACleanup();
-        //    break;
-        //}
     }
 
     Shutdown(iResult, acceptedSocket);
@@ -229,11 +217,11 @@ void Server::AddClientToRoom(Connection& c)
 {
 }
 
-void Server::ReadNessage(Connection& c)
+void Server::Read_Message(Connection& c)
 {
 }
 
-void Server::WriteMEssage()
+void Server::Write_Message()
 {
 }
 

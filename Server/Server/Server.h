@@ -20,23 +20,23 @@ public:
 	~Server();
 
 	void Initialize();
-	void StartServer(SOCKET listenSocket);
-	void AcceptConnections(SOCKET listenSocket);
+	void StartServer();
+	void AcceptConnections();
 	void ReceiveMessage(SOCKET acceptedSocket);
 	void Shutdown(int iResult, SOCKET connectingSocket);
 
 	void SetServerSockAddr(sockaddr_in* sockAddress, int portNumber);
 	void StartChatRoom();
 	void AddClientToRoom(Connection& c);
-	void ReadNessage(Connection& c);
-	void WriteMEssage();
+	void Read_Message(Connection& c);
+	void Write_Message();
 
 	void Pong(SOCKET acceptedSocket);
 
 	bool InitializeWindowsSockets();
 
 private:
-	SOCKET ServerSocket;
+	SOCKET sSocket;
 	sockaddr_in sSocketAddress;
 	std::map<SOCKET, Connection> connections;
 };

@@ -5,12 +5,12 @@
 
 int __cdecl main(int argc, char** argv)
 {
-    SOCKET connectingSocket = INVALID_SOCKET;
+    SOCKET cSocket = INVALID_SOCKET;
     const char *message = "This is the Client.";
 
     Client().Initialize();
 
-    Client().Connect(message, connectingSocket, argv);
+    //Client().Connect(message, cSocket, argv);
 }
 
 Client::Client()
@@ -21,67 +21,60 @@ Client::~Client()
 {
 }
 
-bool Client::Initialize()
+void Client::Initialize()
 {
     if (InitializeWindowsSockets() == false)
     {
-        return 1;
+        return;
     }
 
-    return 0;
+    return;
 }
 
-bool Client::Connect(const char* message, SOCKET connectingSocket, char** argv)
+void Client::Connect(const char* message, SOCKET cSocket, char** argv)
 {
     int iResult;
 
     // Create a connecting socket to connect to the server.
-    connectingSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    if (connectingSocket == INVALID_SOCKET)
+    if (cSocket == INVALID_SOCKET)
     {
         printf("Error at socket(): %ld\n", WSAGetLastError());
 
         WSACleanup();
-        return 1;
+        return;
     }
 
     // create and initialize address structure
-    sockaddr_in serverAddress;
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
-    serverAddress.sin_port = htons(DEFAULT_PORT);
+    cSocketAddress.sin_family = AF_INET;
+    cSocketAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
+    cSocketAddress.sin_port = htons(DEFAULT_PORT);
 
     // connect to server specified in serverAddress and socket connectSocket
-    if (connect(connectingSocket, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
+    if (connect(cSocket, (SOCKADDR*)&cSocketAddress, sizeof(cSocketAddress)) == SOCKET_ERROR)
     {
         printf("Unable to connect to server.\n");
         
-        closesocket(connectingSocket);
+        closesocket(cSocket);
         WSACleanup();
     }
 
-    std::string clientName;
-
-    printf("Input your name, User.\n");
-    std::getline(std::cin, clientName);
-    iResult = send(connectingSocket, clientName.c_str(), (int)strlen(clientName.c_str()) + 1, 0);
-
-
+   
 }
 
-bool Client::Shutdown(int iResult, SOCKET connectingSocket)
+void Client::Shutdown(int iResult)
 {
     // Delete socket
-    iResult = closesocket(connectingSocket);
+    iResult = closesocket(cSocket);
     printf("remote client socket has closed");
     if (iResult == SOCKET_ERROR)
     {
         printf("Unable to close socket.\n");
 
-        closesocket(connectingSocket);
+        closesocket(cSocket);
         WSACleanup();
-        return 1;
+        return;
     }
 
     // CleanUp Winsock
@@ -91,13 +84,65 @@ bool Client::Shutdown(int iResult, SOCKET connectingSocket)
     {
         printf("Unable to cleanup Winsock.\n");
 
-        closesocket(connectingSocket);
+        closesocket(cSocket);
         WSACleanup();
-        return 1;
+        return;
     }
 }
 
-bool Client::Ping(SOCKET connectingSocket)
+void Client::ServerConnect(const char* serverIP, const int serverPort)
+{
+    int iResult;
+
+    // Create a connecting socket to connect to the server.
+    cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    if (cSocket == INVALID_SOCKET)
+    {
+        printf("Error at socket(): %ld\n", WSAGetLastError());
+
+        WSACleanup();
+        return;
+    }
+
+    // create and initialize address structure
+    cSocketAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
+    cSocketAddress.sin_port = htons(serverPort);
+    cSocketAddress.sin_family = AF_INET;
+
+    // connect to server specified in serverAddress and socket connectSocket
+    if (connect(cSocket, (SOCKADDR*)&cSocketAddress, sizeof(cSocketAddress)) == SOCKET_ERROR)
+    {
+        printf("Unable to connect to server.\n");
+
+        closesocket(cSocket);
+        WSACleanup();
+    }
+
+    std::string clientName;
+
+    printf("Input your name, User.\n");
+    std::getline(std::cin, clientName);
+    iResult = send(cSocket, clientName.c_str(), (int)strlen(clientName.c_str()) + 1, 0);
+}
+
+void Client::SetClientSockAddr(const char* serverIP, const int serverPort)
+{
+}
+
+void Client::StartChatRoom()
+{
+}
+
+void Client::Read_Message()
+{
+}
+
+void Client::Send_Message()
+{
+}
+
+void Client::Ping()
 {
     int iResult;
 
@@ -107,27 +152,27 @@ bool Client::Ping(SOCKET connectingSocket)
     for (int i = 0; i < 10; i++)
     {
         // send a "Ping" to the server.
-        iResult = send(connectingSocket, "Ping", (int)strlen("Ping") + 1, 0);
+        iResult = send(cSocket, "Ping", (int)strlen("Ping") + 1, 0);
 
         if (iResult == SOCKET_ERROR)
         {
             printf("Error at send(): %d\n", WSAGetLastError());
 
-            closesocket(connectingSocket);
+            closesocket(cSocket);
             WSACleanup();
-            return 1;
+            return;
         }
         
         // recv a "Pong" from the server.
-        iResult = recv(connectingSocket, pong, sizeof(pong), 0);
+        iResult = recv(cSocket, pong, sizeof(pong), 0);
 
         if (iResult == SOCKET_ERROR)
         {
             printf("Error at recv(): %d\n", WSAGetLastError());
 
-            closesocket(connectingSocket);
+            closesocket(cSocket);
             WSACleanup();
-            return 1;
+            return;
         }
 
         // print the server message to console.
@@ -135,7 +180,7 @@ bool Client::Ping(SOCKET connectingSocket)
         Sleep(500);
     }
 
-    Shutdown(iResult, connectingSocket);
+    Shutdown(iResult);
 }
 
 bool Client::InitializeWindowsSockets()
