@@ -241,8 +241,10 @@ void Server::AddClientToRoom(Connection& c)
 
     while (true)
     {
+        sockaddr caddr;
+        int buffer;
         // receive the client's name.
-        iResult = recv(c.clientSocket, recvbuf, sizeof(DEFAULT_BUFLEN), 0);
+        iResult = recv(c.clientSocket, recvbuf, &caddr, &buffer);
         if (iResult == SOCKET_ERROR)
         {
             printf("recv failed with error: %d\n", WSAGetLastError());
@@ -256,6 +258,8 @@ void Server::AddClientToRoom(Connection& c)
         }
 
         c.clientName = recvbuf;
+        c.clientSocket = c.clientSocket;
+        c.clientSocketAddress = c.caddr;
     }
     std::thread t(&Server::Read_Message, c);
     t.detach();
