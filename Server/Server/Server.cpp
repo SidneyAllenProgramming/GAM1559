@@ -5,6 +5,9 @@ int main()
 {
     Server().Initialize();
     Server().StartServer();
+
+    Server().StartChatRoom();
+    Server().AcceptConnections();
 }
 
 Server::Server()
@@ -84,8 +87,6 @@ void Server::StartServer()
     }
     
     printf("Server initialized, waiting for clients.\n");
-
-    AcceptConnections();
 
     return;
 }
