@@ -1,15 +1,12 @@
 #include "Client.h"
-#include <iostream>
-#include <sstream>
-#include <string>
 
 int __cdecl main(int argc, char** argv)
 {
-    SOCKET cSocket = INVALID_SOCKET;
     const char *message = "This is the Client.";
 
     Client().Initialize();
 
+    Client().ServerConnect("127.0.0.1", 12345);
     //Client().Connect(message, cSocket, argv);
 }
 
@@ -33,8 +30,6 @@ void Client::Initialize()
 
 void Client::Connect(const char* message, SOCKET cSocket, char** argv)
 {
-    int iResult;
-
     // Create a connecting socket to connect to the server.
     cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -59,8 +54,6 @@ void Client::Connect(const char* message, SOCKET cSocket, char** argv)
         closesocket(cSocket);
         WSACleanup();
     }
-
-   
 }
 
 void Client::Shutdown(int iResult)
@@ -105,10 +98,7 @@ void Client::ServerConnect(const char* serverIP, const int serverPort)
         return;
     }
 
-    // create and initialize address structure
-    cSocketAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
-    cSocketAddress.sin_port = htons(serverPort);
-    cSocketAddress.sin_family = AF_INET;
+    SetClientSockAddr(serverIP, serverPort);
 
     // connect to server specified in serverAddress and socket connectSocket
     if (connect(cSocket, (SOCKADDR*)&cSocketAddress, sizeof(cSocketAddress)) == SOCKET_ERROR)
@@ -124,22 +114,92 @@ void Client::ServerConnect(const char* serverIP, const int serverPort)
     printf("Input your name, User.\n");
     std::getline(std::cin, clientName);
     iResult = send(cSocket, clientName.c_str(), (int)strlen(clientName.c_str()) + 1, 0);
+
+    if (iResult == SOCKET_ERROR)
+    {
+        printf("Error at send(): %d\n", WSAGetLastError());
+
+        closesocket(cSocket);
+        WSACleanup();
+        return;
+    }
+
+    StartChatRoom();
+
+    while (true)
+    {
+        Sleep(1000);
+    }
 }
 
 void Client::SetClientSockAddr(const char* serverIP, const int serverPort)
 {
+    // create and initialize address structure
+    cSocketAddress.sin_addr.s_addr = inet_addr(serverIP);
+    cSocketAddress.sin_port = htons(serverPort);
+    cSocketAddress.sin_family = AF_INET;
 }
 
 void Client::StartChatRoom()
 {
+    bool disconnect = true;
+
+    while (!disconnect)
+    {
+        std::thread thread_for_message_read(&Client::Read_Message);
+    }
+    while (!disconnect)
+    {
+        std::thread thread_for_message_send(&Client::Send_Message);
+    }
 }
 
 void Client::Read_Message()
 {
+    int iResult;
+    char recvbuf[DEFAULT_BUFLEN];
+    
+    // recv a message from the server.
+    iResult = recv(cSocket, recvbuf, sizeof(DEFAULT_BUFLEN), 0);
+
+    if (iResult == SOCKET_ERROR)
+    {
+        printf("Error at recv(): %d\n", WSAGetLastError());
+
+        closesocket(cSocket);
+        WSACleanup();
+        return;
+    }
+    else if (iResult == 0)
+    {
+        printf("Error at recv(): %d\n", WSAGetLastError());
+
+        closesocket(cSocket);
+        WSACleanup();
+        return;
+    }
+
+    printf("> ");
+    printf(recvbuf);
+    printf("\n");
 }
 
 void Client::Send_Message()
 {
+    int iResult;
+    std::string message;
+    printf("You: ");
+    std::getline(std::cin, message);
+    iResult = send(cSocket, message.c_str(), (int)strlen(message.c_str()) + 1, 0);
+
+    if (iResult == SOCKET_ERROR)
+    {
+        printf("Error at send(): %d\n", WSAGetLastError());
+
+        closesocket(cSocket);
+        WSACleanup();
+        return;
+    }
 }
 
 void Client::Ping()

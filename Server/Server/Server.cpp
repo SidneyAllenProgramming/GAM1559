@@ -1,5 +1,4 @@
 #include "Server.h"
-#include <string>
 
 int main()
 {
@@ -7,7 +6,6 @@ int main()
     Server().StartServer();
 
     Server().StartChatRoom();
-    Server().AcceptConnections();
 }
 
 Server::Server()
@@ -93,7 +91,6 @@ void Server::StartServer()
 
 void Server::AcceptConnections()
 {
-    //char recvbuf[DEFAULT_BUFLEN];
     SOCKET acceptedSocket = INVALID_SOCKET;
 
     // Accept a client socket
@@ -117,8 +114,6 @@ void Server::ReceiveMessage(SOCKET acceptedSocket)
 {
     int iResult;
     char recvbuf[DEFAULT_BUFLEN];
-
-    // Somehow, I need to wait and then receive the client's name here?
 
     while (true)
     {
@@ -212,18 +207,121 @@ void Server::SetServerSockAddr(sockaddr_in* sockAddress, int portNumber)
 
 void Server::StartChatRoom()
 {
+    std::thread connectionHandlerThread([&]
+        {
+            SOCKET acceptedSocket = INVALID_SOCKET;
+
+            // Accept a client socket
+            acceptedSocket = accept(sSocket, NULL, NULL);
+            if (acceptedSocket == INVALID_SOCKET)
+            {
+                printf("accept failed with error: %d\n", WSAGetLastError());
+
+                closesocket(sSocket);
+                WSACleanup();
+                return;
+            }
+
+            for (int i = 0; i < connections.size(); i++)
+            {
+                Server::AddClientToRoom(connections[i]);
+            }
+
+            closesocket(sSocket);
+            return;
+        });
+
+    connectionHandlerThread.detach();
 }
 
 void Server::AddClientToRoom(Connection& c)
 {
+    int iResult;
+    char recvbuf[DEFAULT_BUFLEN];
+
+    while (true)
+    {
+        // receive the client's name.
+        iResult = recv(c.clientSocket, recvbuf, sizeof(DEFAULT_BUFLEN), 0);
+        if (iResult == SOCKET_ERROR)
+        {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+            closesocket(c.clientSocket);
+            WSACleanup();
+            break;
+        }
+        else if (iResult == 0)
+        {
+            break;
+        }
+
+        c.clientName = recvbuf;
+    }
+    std::thread t(&Server::Read_Message, c);
+    t.detach();
+    
+    connections.insert(std::pair<SOCKET, Connection>(c.clientSocket, c));
 }
 
 void Server::Read_Message(Connection& c)
 {
+    int iResult;
+    char recvbuf[DEFAULT_BUFLEN];
+    
+    while (true)
+    {
+        // receive the client's message.
+        iResult = recv(c.clientSocket, recvbuf, sizeof(DEFAULT_BUFLEN), 0);
+        if (iResult == SOCKET_ERROR)
+        {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+            closesocket(c.clientSocket);
+            WSACleanup();
+            break;
+        }
+        else if (iResult == 0)
+        {
+            break;
+        }
+
+        printf("> ");
+        printf(recvbuf);
+        printf("\n");
+
+        for (auto i : connections)
+        {
+            if (i.first != c.clientSocket)
+            {
+                // send the message to all other clients.
+                iResult = send(i.first, recvbuf, (int)recvbuf + 1, 0);
+                if (iResult == SOCKET_ERROR)
+                {
+                    printf("send failed with error: %d\n", WSAGetLastError());
+                    closesocket(i.first);
+                    WSACleanup();
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void Server::Write_Message()
 {
+    int iResult;
+    std::string message;
+    printf("You: ");
+    std::getline(std::cin, message);
+    iResult = send(sSocket, message.c_str(), (int)strlen(message.c_str()) + 1, 0);
+
+    if (iResult == SOCKET_ERROR)
+    {
+        printf("Error at send(): %d\n", WSAGetLastError());
+
+        closesocket(sSocket);
+        WSACleanup();
+        return;
+    }
 }
 
 bool Server::InitializeWindowsSockets()

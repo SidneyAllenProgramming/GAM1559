@@ -7,6 +7,10 @@
 #include <WinSock2.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <thread>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -22,18 +26,20 @@ public:
 	void Initialize();
 	void Connect(const char* message, SOCKET connectingSocket, char** argv);
 
-
 	void Shutdown(int iResult);
 
 	void ServerConnect(const char* serverIP, const int serverPort);
-	void SetClientSockAddr(const char* serverIP, const int serverPort);
 	void StartChatRoom();
-	void Read_Message();
-	void Send_Message();
 
 	void Ping();
 
 	bool InitializeWindowsSockets();
+
+private:
+	void SetClientSockAddr(const char* serverIP, const int serverPort);
+	void Read_Message();
+	void Send_Message();
+
 
 private:
 	SOCKET cSocket;

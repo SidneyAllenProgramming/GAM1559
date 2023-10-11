@@ -17,7 +17,7 @@ class Connection
 public:
 	Connection(const SOCKET cSocket, const sockaddr_in cSocketAddress);
 
-private:
+public:
 	SOCKET clientSocket;
 	sockaddr_in clientSocketAddress;
 	std::string clientName;

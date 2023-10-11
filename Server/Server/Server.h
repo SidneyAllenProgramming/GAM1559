@@ -6,6 +6,9 @@
 #include <WinSock2.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string>
+#include <thread>
+#include <iostream>
 #include <map>
 
 #pragma comment(lib, "Ws2_32.lib")
@@ -25,15 +28,18 @@ public:
 	void ReceiveMessage(SOCKET acceptedSocket);
 	void Shutdown(int iResult, SOCKET connectingSocket);
 
-	void SetServerSockAddr(sockaddr_in* sockAddress, int portNumber);
 	void StartChatRoom();
-	void AddClientToRoom(Connection& c);
-	void Read_Message(Connection& c);
-	void Write_Message();
 
 	void Pong(SOCKET acceptedSocket);
 
 	bool InitializeWindowsSockets();
+
+private:
+	void SetServerSockAddr(sockaddr_in* sockAddress, int portNumber);
+	void AddClientToRoom(Connection& c);
+	void Read_Message(Connection& c);
+	void Write_Message();
+
 
 private:
 	SOCKET sSocket;
