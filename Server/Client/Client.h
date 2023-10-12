@@ -40,7 +40,6 @@ private:
 	void Read_Message();
 	void Send_Message();
 
-
 private:
 	SOCKET cSocket;
 	sockaddr_in cSocketAddress;

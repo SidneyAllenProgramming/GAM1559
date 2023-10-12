@@ -210,9 +210,10 @@ void Server::StartChatRoom()
     std::thread connectionHandlerThread([&]
         {
             SOCKET acceptedSocket = INVALID_SOCKET;
+            sockaddr_in clientSocketAddress;
 
             // Accept a client socket
-            acceptedSocket = accept(sSocket, NULL, NULL);
+            acceptedSocket = accept(sSocket, (struct sockaddr*)&clientSocketAddress, (int*)sizeof(clientSocketAddress));
             if (acceptedSocket == INVALID_SOCKET)
             {
                 printf("accept failed with error: %d\n", WSAGetLastError());
@@ -222,8 +223,10 @@ void Server::StartChatRoom()
                 return;
             }
 
+
             for (int i = 0; i < connections.size(); i++)
             {
+                connections[i].clientSocketAddress = clientSocketAddress;
                 Server::AddClientToRoom(connections[i]);
             }
 
@@ -241,10 +244,8 @@ void Server::AddClientToRoom(Connection& c)
 
     while (true)
     {
-        sockaddr caddr;
-        int buffer;
         // receive the client's name.
-        iResult = recv(c.clientSocket, recvbuf, &caddr, &buffer);
+        iResult = recv(c.clientSocket, recvbuf, sizeof(DEFAULT_BUFLEN), 0);
         if (iResult == SOCKET_ERROR)
         {
             printf("recv failed with error: %d\n", WSAGetLastError());
@@ -256,18 +257,18 @@ void Server::AddClientToRoom(Connection& c)
         {
             break;
         }
-
+        
         c.clientName = recvbuf;
-        c.clientSocket = c.clientSocket;
-        c.clientSocketAddress = c.caddr;
     }
+
     std::thread t(&Server::Read_Message, c);
+    //std::thread t([&]() { &Server::Read_Message, std::ref(c); });
     t.detach();
     
     connections.insert(std::pair<SOCKET, Connection>(c.clientSocket, c));
 }
 
-void Server::Read_Message(Connection& c)
+void Server::Read_Message(Connection c)
 {
     int iResult;
     char recvbuf[DEFAULT_BUFLEN];
@@ -297,7 +298,7 @@ void Server::Read_Message(Connection& c)
             if (i.first != c.clientSocket)
             {
                 // send the message to all other clients.
-                iResult = send(i.first, recvbuf, (int)recvbuf + 1, 0);
+                iResult = send(i.first, recvbuf, sizeof(recvbuf) + 1, 0);
                 if (iResult == SOCKET_ERROR)
                 {
                     printf("send failed with error: %d\n", WSAGetLastError());

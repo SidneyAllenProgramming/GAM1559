@@ -37,7 +37,7 @@ public:
 private:
 	void SetServerSockAddr(sockaddr_in* sockAddress, int portNumber);
 	void AddClientToRoom(Connection& c);
-	void Read_Message(Connection& c);
+	void Read_Message(Connection c);
 	void Write_Message();
 
 

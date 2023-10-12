@@ -15,6 +15,8 @@
 class Connection
 {
 public:
+	Connection();
+
 	Connection(const SOCKET cSocket, const sockaddr_in cSocketAddress);
 
 public:
