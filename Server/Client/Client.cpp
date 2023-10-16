@@ -146,13 +146,13 @@ void Client::StartChatRoom()
 
     while (!disconnect)
     {
-        std::thread thread_for_message_read(&Client::Read_Message);
-        thread_for_message_read.join();
+        //std::thread thread_for_message_read(&Client::Read_Message);
+        //thread_for_message_read.join();
     }
     while (!disconnect)
     {
-        std::thread thread_for_message_send(&Client::Send_Message);
-        thread_for_message_send.join();
+        /*std::thread thread_for_message_send(&Client::Send_Message);
+        thread_for_message_send.join();*/
     }
 }
 

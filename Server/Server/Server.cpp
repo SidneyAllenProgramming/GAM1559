@@ -5,7 +5,8 @@ int main()
     Server().Initialize();
     Server().StartServer();
 
-    Server().StartChatRoom();
+    //Server().StartChatRoom();
+    &Server::StartChatRoom;
 }
 
 Server::Server()
@@ -260,9 +261,7 @@ void Server::AddClientToRoom(Connection& c)
         
         c.clientName = recvbuf;
     }
-
-    std::thread t(&Server::Read_Message, c);
-    //std::thread t([&]() { &Server::Read_Message, std::ref(c); });
+    std::thread t(&Server::Read_Message, &c);
     t.detach();
     
     connections.insert(std::pair<SOCKET, Connection>(c.clientSocket, c));

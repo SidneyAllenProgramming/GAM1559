@@ -34,7 +34,7 @@ public:
 
 	bool InitializeWindowsSockets();
 
-private:
+public:
 	void SetServerSockAddr(sockaddr_in* sockAddress, int portNumber);
 	void AddClientToRoom(Connection& c);
 	void Read_Message(Connection c);

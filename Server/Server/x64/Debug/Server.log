@@ -1,25 +1,3 @@
 ﻿  Server.cpp
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(55,14): error C2672: 'invoke': no matching overloaded function found
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\type_traits(1756,19): message : could be 'unknown-type std::invoke(_Callable &&,_Ty1 &&,_Types2 &&...) noexcept(<expr>)'
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(55,14): message : Failed to specialize function template 'unknown-type std::invoke(_Callable &&,_Ty1 &&,_Types2 &&...) noexcept(<expr>)'
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(55,14): message : With the following template arguments:
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(55,14): message : '_Callable=void (__cdecl Server::* )(Connection)'
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(55,14): message : '_Ty1=Connection'
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(55,14): message : '_Types2={}'
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\type_traits(1759,50): message : 'std::_Invoker_pmf_pointer::_Call': no matching overloaded function found
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\type_traits(1689,27): message : could be 'unknown-type std::_Invoker_pmf_pointer::_Call(_Decayed,_Ty1 &&,_Types2 &&...) noexcept(<expr>)'
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\type_traits(1750,19): message : or       'unknown-type std::invoke(_Callable &&) noexcept(<expr>)'
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(55,14): message : 'unknown-type std::invoke(_Callable &&) noexcept(<expr>)': expects 1 arguments - 2 provided
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(62,17): message : see reference to function template instantiation 'unsigned int std::thread::_Invoke<_Tuple,0,1>(void *) noexcept' being compiled
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(71,40): message : see reference to function template instantiation 'unsigned int (__cdecl *std::thread::_Get_invoke<_Tuple,0,1>(std::integer_sequence<size_t,0,1>) noexcept)(void *)' being compiled
-C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.37.32822\include\thread(88,9): message : see reference to function template instantiation 'void std::thread::_Start<_Ty,Connection&>(_Fn &&,Connection &)' being compiled
-          with
-          [
-              _Ty=void (__cdecl Server::* )(Connection),
-              _Fn=void (__cdecl Server::* )(Connection)
-          ]
-C:\Users\alle0328\Downloads\GAM1559\Server\Server\Server.cpp(264,18): message : see reference to function template instantiation 'std::thread::thread<void(__cdecl Server::* )(Connection),Connection&,0>(_Fn &&,Connection &)' being compiled
-          with
-          [
-              _Fn=void (__cdecl Server::* )(Connection)
-          ]
+Server.obj : error LNK2019: unresolved external symbol "public: __cdecl Connection::Connection(void)" (??0Connection@@QEAA@XZ) referenced in function "public: __cdecl std::pair<unsigned __int64 const ,class Connection>::pair<unsigned __int64 const ,class Connection><class std::tuple<unsigned __int64 &&>,class std::tuple<>,0>(class std::tuple<unsigned __int64 &&> &,class std::tuple<> &,struct std::integer_sequence<unsigned __int64,0>,struct std::integer_sequence<unsigned __int64>)" (??$?0V?$tuple@$$QEA_K@std@@V?$tuple@$$V@1@$0A@$$Z$S@?$pair@$$CB_KVConnection@@@std@@QEAA@AEAV?$tuple@$$QEA_K@1@AEAV?$tuple@$$V@1@U?$integer_sequence@_K$0A@@1@U?$integer_sequence@_K$S@1@@Z)
+C:\Users\User\Downloads\GAM1559\Server\x64\Debug\Server.exe : fatal error LNK1120: 1 unresolved externals
